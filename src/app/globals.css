@@ -1,8 +1,68 @@
 @import "tailwindcss";
 
+@theme {
+  --color-bg: #f6f6f4;
+  --color-surface: #ffffff;
+  --color-border: #e4e4e0;
+  --color-ink: #1c1c21;
+  --color-muted: #71717a;
+  --color-accent: #5b5bd6;
+  --color-accent-hover: #4e4ec7;
+  --color-accent-soft: #eeeefb;
+
+  --color-positive-bg: #e5f2ea;
+  --color-positive-text: #1d7a46;
+  --color-attention-bg: #faf0dc;
+  --color-attention-text: #9a6700;
+  --color-critical-bg: #fbe9e7;
+  --color-critical-text: #c0362c;
+  --color-info-bg: #e8ecfa;
+  --color-info-text: #4051b5;
+  --color-neutral-bg: #ececea;
+  --color-neutral-text: #55555c;
+
+  --radius-sm-element: 6px;
+  --radius-card: 10px;
+  --radius-signature: 16px;
+
+  --shadow-rest: 0 1px 2px rgb(28 28 33 / 0.05);
+  --shadow-lift: 0 4px 16px -2px rgb(28 28 33 / 0.12);
+
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+}
+
 body {
-  background-color: var(--color-slate-100);
-  color: var(--color-slate-900);
+  background-color: var(--color-bg);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-accent-soft);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-border) 25%, #efefec 50%, var(--color-border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes row-flash {
+  0% { background-color: var(--color-accent-soft); }
+  100% { background-color: transparent; }
+}
+
+.row-flash > td {
+  animation: row-flash 1.6s ease-out forwards;
 }
