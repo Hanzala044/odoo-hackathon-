@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
-import { Card, PageHeader, fmtDate } from "@/components/ui";
+import { Avatar, Card, PageHeader, fmtDate } from "@/components/ui";
 import { OwnProfileForm } from "@/components/profile-form";
 import { ProfileTabs } from "@/components/profile-tabs";
 
@@ -26,13 +26,13 @@ export default async function ProfilePage() {
   const admin = isAdmin(session.role);
   return (
     <>
-      <PageHeader title="My Profile" subtitle="Employee's profile in form view." />
+      <PageHeader title="My Profile" subtitle="Your details, visible to you and HR." />
       <div className="grid max-w-4xl gap-4">
         <Card>
-          <div className="flex gap-4">
-            <div className="h-20 w-20 rounded-full bg-rose-300 flex items-center justify-center">✎</div>
+          <div className="flex items-center gap-5">
+            <Avatar name={`${p.firstName} ${p.lastName}`} size="lg" />
             <dl className="grid flex-1 grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              <Row label="My Name" value={`${p.firstName} ${p.lastName}`} />
+              <Row label="Name" value={`${p.firstName} ${p.lastName}`} />
               <Row label="Company" value={user.company?.name} />
               <Row label="Login ID" value={user.employeeId} />
               <Row label="Department" value={p.department} />
@@ -56,7 +56,7 @@ export default async function ProfilePage() {
 function Row({ label, value }: { label: string; value?: string | null }) {
   return (
     <>
-      <dt className="text-slate-500">{label}</dt>
+      <dt className="text-muted">{label}</dt>
       <dd className="font-medium">{value || "—"}</dd>
     </>
   );

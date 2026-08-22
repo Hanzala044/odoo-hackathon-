@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
-import { PageHeader, Table, Td, Badge, EmptyState, fmtDate, fmtTime } from "@/components/ui";
+import { PageHeader, Table, Tr, Td, Badge, EmptyState, fmtDate, fmtTime } from "@/components/ui";
 import { MarkAttendanceForm } from "@/components/attendance-forms";
 
 export default async function AdminAttendancePage() {
@@ -26,8 +26,8 @@ export default async function AdminAttendancePage() {
     <>
       <PageHeader title="Attendance Records" subtitle="All employees · latest 100 records" />
 
-      <div className="mb-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold">Mark attendance manually</h2>
+      <div className="mb-8 rounded-[10px] border border-border bg-surface p-5 shadow-rest">
+        <h2 className="mb-4 text-[15px] font-semibold">Mark attendance manually</h2>
         <MarkAttendanceForm
           employees={users.map((u) => ({
             id: u.id,
@@ -41,13 +41,13 @@ export default async function AdminAttendancePage() {
       ) : (
         <Table head={["Date", "Employee", "Check-in", "Check-out", "Status"]}>
           {records.map((r) => (
-            <tr key={r.id}>
+            <Tr key={r.id}>
               <Td>{fmtDate(r.date)}</Td>
               <Td>{r.user.profile ? `${r.user.profile.firstName} ${r.user.profile.lastName}` : r.user.email}</Td>
               <Td>{fmtTime(r.checkIn)}</Td>
               <Td>{fmtTime(r.checkOut)}</Td>
               <Td><Badge value={r.status} /></Td>
-            </tr>
+            </Tr>
           ))}
         </Table>
       )}
