@@ -1,0 +1,42 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getSession, isAdmin } from "@/lib/auth";
+import { PageHeader, Table, Td, EmptyState, Badge, fmtDate } from "@/components/ui";
+
+export default async function AdminEmployeesPage() {
+  const session = await getSession();
+  if (!session || !isAdmin(session.role)) redirect("/dashboard");
+
+  const users = await prisma.user.findMany({
+    include: { profile: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return (
+    <>
+      <PageHeader title="Employees" subtitle={`${users.length} team member${users.length === 1 ? "" : "s"}`} />
+      {users.length === 0 ? (
+        <EmptyState message="No employees yet." />
+      ) : (
+        <Table head={["Employee ID", "Name", "Email", "Department", "Role", "Joined", ""]}>
+          {users.map((u) => (
+            <tr key={u.id}>
+              <Td>{u.employeeId}</Td>
+              <Td>{u.profile ? `${u.profile.firstName} ${u.profile.lastName}` : "—"}</Td>
+              <Td>{u.email}</Td>
+              <Td>{u.profile?.department}</Td>
+              <Td><Badge value={u.role} /></Td>
+              <Td>{fmtDate(u.profile?.dateOfJoining ?? u.createdAt)}</Td>
+              <Td>
+                <Link href={`/admin/employees/${u.id}`} className="font-medium text-indigo-600 hover:underline">
+                  View / edit
+                </Link>
+              </Td>
+            </tr>
+          ))}
+        </Table>
+      )}
+    </>
+  );
+}
