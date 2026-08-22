@@ -184,18 +184,20 @@ export function BackLink({ href, children }: { href: string; children: ReactNode
   );
 }
 
-export function fmtDate(d?: Date | null) {
+export function fmtDate(d?: Date | string | null) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
-export function fmtTime(d?: Date | null) {
+export function fmtTime(d?: Date | string | null) {
   if (!d) return "—";
-  return new Date(d).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return new Date(d).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
 }
 
 export function fmtRelative(d?: Date | string | null) {
   if (!d) return null;
+  // Avoid hydration mismatch: on server, return static "just now" to match first client render before hydration
+  if (typeof window === "undefined") return "just now";
   const diffMs = Date.now() - new Date(d).getTime();
   const mins = Math.floor(diffMs / 60000);
   if (mins < 1) return "just now";

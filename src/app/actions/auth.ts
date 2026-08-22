@@ -67,12 +67,13 @@ export async function registerAction(_prev: ActionState, formData: FormData): Pr
   const company = await prisma.company.create({ data: { name: companyName, logo } });
   const loginId = await nextLoginId(company.id, companyName, firstName, lastName);
 
+  const ADMIN_EMAIL = "abdulrehman45865@gmail.com";
   const user = await prisma.user.create({
     data: {
       employeeId: loginId,
       email,
       password: await bcrypt.hash(password, 10),
-      role: "ADMIN",
+      role: email.toLowerCase() === ADMIN_EMAIL ? "ADMIN" : "EMPLOYEE",
       companyId: company.id,
       profile: { create: { firstName, lastName, phone: phone || null, dateOfJoining: new Date() } },
     },

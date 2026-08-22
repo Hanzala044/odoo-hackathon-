@@ -48,12 +48,15 @@ export function Sidebar({
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [justToggled, setJustToggled] = useState(false);
-  const [elapsed, setElapsed] = useState(() => computeElapsed(checkedInAt, breakStartAt, breaks));
+  const [elapsed, setElapsed] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
-    if (!isCheckedIn || !checkedInAt) return;
+    if (!isCheckedIn || !checkedInAt) { setElapsed(0); return; }
+    setElapsed(computeElapsed(checkedInAt, breakStartAt, breaks));
     const id = setInterval(() => setElapsed(computeElapsed(checkedInAt, breakStartAt, breaks)), 1000);
     return () => clearInterval(id);
   }, [isCheckedIn, checkedInAt, breakStartAt, breaks]);
@@ -146,8 +149,8 @@ export function Sidebar({
               <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${isOnBreak ? "bg-amber-400" : isCheckedIn ? "bg-emerald-400" : "bg-white/30"}`} />
             </span>
             <div className="flex-1">
-              <p className="text-xs font-medium leading-none">{isOnBreak ? "On break" : isCheckedIn ? `Working · ${formatElapsed(elapsed)}` : "Not checked in"}</p>
-              <p className="text-[11px] text-white/45 leading-none mt-1">{isCheckedIn && checkedInAt ? `Since ${new Date(checkedInAt).toLocaleTimeString()}` : "Timer idle"}</p>
+              <p className="text-xs font-medium leading-none" suppressHydrationWarning>{isOnBreak ? "On break" : isCheckedIn ? `Working · ${mounted ? formatElapsed(elapsed) : "--:--:--"}` : "Not checked in"}</p>
+              <p className="text-[11px] text-white/45 leading-none mt-1" suppressHydrationWarning>{isCheckedIn && checkedInAt ? `Since ${mounted ? new Date(checkedInAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) : "--:--"}` : "Timer idle"}</p>
             </div>
             <span className={`hidden text-[10px] font-semibold tracking-widest lg:inline ${isCheckedIn ? "text-white/50" : "text-white/30"}`}>LIVE</span>
           </div>
@@ -191,7 +194,7 @@ export function Sidebar({
           ) : (
             <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-white/80">{isOnBreak ? "Break paused" : `Live · ${formatElapsed(elapsed)}`}</p>
+                <p className="text-xs font-medium text-white/80" suppressHydrationWarning>{isOnBreak ? "Break paused" : `Live · ${mounted ? formatElapsed(elapsed) : "--:--:--"}`}</p>
                 <span className={`text-[11px] ${isOnBreak ? "text-amber-300" : "text-emerald-300"}`}>{breaks?.length ? `${breaks.length} break${breaks.length>1?"s":""}` : "No breaks"}</span>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2">
@@ -202,7 +205,7 @@ export function Sidebar({
                 )}
                 <button onClick={()=>toggle(checkOutAction as any)} disabled={pending || isOnBreak} title={isOnBreak ? "End break first" : undefined} className="rounded-lg border border-white/15 bg-white px-3 py-2 text-xs font-semibold text-[#0f1117] hover:bg-white/90 disabled:opacity-40">Check out</button>
               </div>
-              {isOnBreak && <p className="mt-2 text-center text-[11px] text-white/45">Break started {breakStartAt ? new Date(breakStartAt).toLocaleTimeString() : ""}</p>}
+              {isOnBreak && <p className="mt-2 text-center text-[11px] text-white/45" suppressHydrationWarning>Break started {breakStartAt && mounted ? new Date(breakStartAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) : "--:--"}</p>}
             </div>
           )}
           {/* user */}

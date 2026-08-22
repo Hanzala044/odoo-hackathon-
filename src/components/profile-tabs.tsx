@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { calcSalary, PF_RATE, PROF_TAX } from "@/lib/salary";
+import { fmtDate } from "@/components/ui";
 
 export function ProfileTabs({ profile, isAdmin, isOwn }: { profile: any; isAdmin: boolean; isOwn: boolean }) {
   const [tab, setTab] = useState("private");
@@ -22,7 +23,7 @@ export function ProfileTabs({ profile, isAdmin, isOwn }: { profile: any; isAdmin
       <div className="p-6 text-sm">
         {tab === "private" && (
           <div className="grid gap-3 md:grid-cols-2">
-            <p>Date of Birth: {profile.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString() : "—"}</p>
+            <p>Date of Birth: {fmtDate(profile.dateOfBirth)}</p>
             <p>Bank Details: {profile.bankName || "—"} | Acc: {profile.bankAccount || "—"}</p>
             <p>Residing Address: {profile.address || "—"}</p>
             <p>IFSC: {profile.ifscCode || "—"}</p>
@@ -33,7 +34,7 @@ export function ProfileTabs({ profile, isAdmin, isOwn }: { profile: any; isAdmin
             <p>Gender: {profile.gender || "—"}</p>
             <p>Emp Code: {profile.empCode || profile.user?.employeeId || "—"}</p>
             <p>Marital Status: {profile.maritalStatus || "—"}</p>
-            <p>Date of Joining: {profile.dateOfJoining ? new Date(profile.dateOfJoining).toLocaleDateString() : "—"}</p>
+            <p>Date of Joining: {fmtDate(profile.dateOfJoining)}</p>
           </div>
         )}
         {tab === "salary" && isAdmin && (
