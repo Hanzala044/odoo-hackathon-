@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import { Card, PageHeader, Table, Td, Badge, EmptyState, fmtDate, fmtTime } from "@/components/ui";
+import { Card, PageHeader, Table, Tr, Td, Badge, EmptyState, buttonClass, fmtDate, fmtTime, fmtRelative } from "@/components/ui";
 import { CheckButtons } from "@/components/attendance-forms";
 
 export default async function AttendancePage() {
@@ -25,29 +26,49 @@ export default async function AttendancePage() {
 
   return (
     <>
-      <PageHeader title="Attendance" subtitle="Check in and out, and review your last 7 days." />
-      <Card className="mb-6 flex items-center justify-between">
+      <PageHeader title="Attendance" subtitle="Your check-ins for the past week." />
+      <Card className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm text-slate-500">Today · {fmtDate(todayUtc)}</p>
-          <p className="mt-1 font-medium">
-            {checkedIn ? `Checked in at ${fmtTime(todayRecord?.checkIn)}` : "You haven't checked in yet"}
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">Today · {fmtDate(todayUtc)}</p>
+          <p className="mt-1.5 font-medium">
+            {checkedIn && !checkedOut && (
+              <>
+                Checked in at {fmtTime(todayRecord?.checkIn)}
+                <span className="ml-2 text-xs font-normal text-muted">{fmtRelative(todayRecord?.checkIn)}</span>
+              </>
+            )}
+            {checkedIn && checkedOut && <>Day complete — checked out at {fmtTime(todayRecord?.checkOut)}</>}
+            {!checkedIn && "You haven't checked in yet"}
           </p>
         </div>
         <CheckButtons checkedIn={checkedIn} checkedOut={checkedOut} />
       </Card>
 
-      <h2 className="mb-3 font-semibold">Last 7 days</h2>
+      <h2 className="mb-3 text-[15px] font-semibold">Last 7 days</h2>
       {records.length === 0 ? (
-        <EmptyState message="No attendance records yet. Check in to create your first one." />
+        <EmptyState
+          icon={
+            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.5]">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 3" />
+            </svg>
+          }
+          message="No attendance records this week."
+          action={
+            !checkedIn ? (
+              <Link href="#" className={buttonClass}>Check in to start tracking</Link>
+            ) : undefined
+          }
+        />
       ) : (
         <Table head={["Date", "Check-in", "Check-out", "Status"]}>
           {records.map((r) => (
-            <tr key={r.id}>
+            <Tr key={r.id}>
               <Td>{fmtDate(r.date)}</Td>
               <Td>{fmtTime(r.checkIn)}</Td>
               <Td>{fmtTime(r.checkOut)}</Td>
               <Td><Badge value={r.status} /></Td>
-            </tr>
+            </Tr>
           ))}
         </Table>
       )}
