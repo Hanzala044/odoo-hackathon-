@@ -14,6 +14,7 @@ export default async function AdminEmployeeDetailPage({ params }: { params: Prom
     include: { profile: true },
   });
   if (!user) notFound();
+  if (user.companyId !== session.companyId) notFound();
   const p = user.profile;
 
   return (

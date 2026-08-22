@@ -10,11 +10,16 @@ export default async function AdminAttendancePage() {
 
   const [records, users] = await Promise.all([
     prisma.attendance.findMany({
+      where: { user: { companyId: session.companyId } },
       include: { user: { include: { profile: true } } },
       orderBy: [{ date: "desc" }, { checkIn: "desc" }],
       take: 100,
     }),
-    prisma.user.findMany({ include: { profile: true }, orderBy: { employeeId: "asc" } }),
+    prisma.user.findMany({
+      where: { companyId: session.companyId },
+      include: { profile: true },
+      orderBy: { employeeId: "asc" },
+    }),
   ]);
 
   return (

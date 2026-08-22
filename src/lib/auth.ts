@@ -1,44 +1,20 @@
-import crypto from "crypto";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import {
+  SESSION_COOKIE_NAME,
+  serializeSession,
+  deserializeSessionToken,
+  type SessionUser,
+} from "@/lib/session";
 
-const COOKIE_NAME = "dayflow_session";
-// Custom HMAC-signed cookie session secret (legacy env name was NEXTAUTH_SECRET — this project does not use NextAuth).
-const SECRET = process.env.SESSION_SECRET || process.env.NEXTAUTH_SECRET || "dev-secret";
+export type { SessionUser };
+export { SESSION_COOKIE_NAME };
+
 const MAX_AGE = 60 * 60 * 24 * 7;
-
-export type SessionUser = {
-  id: string;
-  email: string;
-  role: string;
-};
-
-function sign(value: string) {
-  return crypto.createHmac("sha256", SECRET).update(value).digest("base64url");
-}
-
-function serialize(user: SessionUser) {
-  const payload = Buffer.from(JSON.stringify({ ...user, exp: Date.now() + MAX_AGE * 1000 })).toString("base64url");
-  return `${payload}.${sign(payload)}`;
-}
-
-function deserialize(token: string): SessionUser | null {
-  const [payload, sig] = token.split(".");
-  if (!payload || !sig) return null;
-  const expected = sign(payload);
-  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
-  try {
-    const data = JSON.parse(Buffer.from(payload, "base64url").toString());
-    if (!data.exp || data.exp < Date.now()) return null;
-    return { id: data.id, email: data.email, role: data.role };
-  } catch {
-    return null;
-  }
-}
 
 export async function createSession(user: SessionUser) {
   const store = await cookies();
-  store.set(COOKIE_NAME, serialize(user), {
+  store.set(SESSION_COOKIE_NAME, await serializeSession(user), {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
@@ -49,14 +25,14 @@ export async function createSession(user: SessionUser) {
 
 export async function destroySession() {
   const store = await cookies();
-  store.delete(COOKIE_NAME);
+  store.delete(SESSION_COOKIE_NAME);
 }
 
 export async function getSession(): Promise<SessionUser | null> {
   const store = await cookies();
-  const token = store.get(COOKIE_NAME)?.value;
+  const token = store.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
-  return deserialize(token);
+  return deserializeSessionToken(token);
 }
 
 export function isAdmin(role?: string | null) {

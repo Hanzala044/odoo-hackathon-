@@ -10,7 +10,7 @@ export default async function EmployeeViewPage({ params }: { params: Promise<{ i
   if (!session) redirect("/login");
   const admin = isAdmin(session.role);
   const user = await prisma.user.findUnique({ where: { id }, include: { profile: true, company: true } });
-  if (!user?.profile) return <p>Not found</p>;
+  if (!user?.profile || user.companyId !== session.companyId) return <p>Not found</p>;
   const p = user.profile;
   const wage = p.monthlyWage ?? 50000;
   const s = calcSalary(wage);

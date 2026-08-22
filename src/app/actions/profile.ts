@@ -43,6 +43,9 @@ export async function adminUpdateProfileAction(_prev: ActionState, formData: For
   });
   if (!parsed.success) return { error: "Invalid input." };
 
+  const target = await prisma.user.findUnique({ where: { id: userId }, select: { companyId: true } });
+  if (!target || target.companyId !== session.companyId) return { error: "Forbidden." };
+
   try {
     await prisma.profile.update({
       where: { userId },
@@ -71,6 +74,9 @@ export async function updatePayrollAction(_prev: ActionState, formData: FormData
     salaryBonus: formData.get("salaryBonus"),
   });
   if (!parsed.success) return { error: "Salary values must be non-negative numbers." };
+
+  const target = await prisma.user.findUnique({ where: { id: parsed.data.userId }, select: { companyId: true } });
+  if (!target || target.companyId !== session.companyId) return { error: "Forbidden." };
 
   try {
     await prisma.profile.update({

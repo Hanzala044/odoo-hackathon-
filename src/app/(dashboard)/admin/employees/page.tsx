@@ -10,6 +10,7 @@ export default async function AdminEmployeesPage() {
   if (!session || !isAdmin(session.role)) redirect("/dashboard");
 
   const users = await prisma.user.findMany({
+    where: { companyId: session.companyId },
     include: { profile: true },
     orderBy: { createdAt: "asc" },
   });

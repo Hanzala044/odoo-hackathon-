@@ -9,6 +9,7 @@ export default async function AdminLeavesPage() {
   if (!session || !isAdmin(session.role)) redirect("/dashboard");
 
   const requests = await prisma.leaveRequest.findMany({
+    where: { user: { companyId: session.companyId } },
     include: { user: { include: { profile: true } } },
     orderBy: [{ status: "desc" }, { createdAt: "desc" }],
   });

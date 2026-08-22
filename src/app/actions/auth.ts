@@ -30,7 +30,7 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
   if (!parsed.success) return { error: "Enter Login ID/Email and password." };
   const user = await verifyCredentials(parsed.data.identifier, parsed.data.password);
   if (!user) return { error: "Invalid Login ID/Email or password." };
-  await createSession({ id: user.id, email: user.email, role: user.role });
+  await createSession({ id: user.id, email: user.email, role: user.role, companyId: user.companyId, mustChangePassword: user.mustChangePassword });
   if (user.mustChangePassword) redirect("/change-password");
   redirect("/dashboard");
 }
@@ -67,7 +67,7 @@ export async function registerAction(_prev: ActionState, formData: FormData): Pr
       profile: { create: { firstName, lastName, phone: phone || null, dateOfJoining: new Date() } },
     },
   });
-  await createSession({ id: user.id, email: user.email, role: user.role });
+  await createSession({ id: user.id, email: user.email, role: user.role, companyId: user.companyId, mustChangePassword: user.mustChangePassword });
   redirect("/dashboard");
 }
 
@@ -75,9 +75,9 @@ export async function registerAction(_prev: ActionState, formData: FormData): Pr
 export async function createEmployeeAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const { requireAdmin } = await import("@/lib/auth");
   const session = await requireAdmin();
-  const me = await prisma.user.findUnique({ where: { id: session.id } });
-  if (!me?.companyId) return { error: "No company found." };
-  const company = await prisma.company.findUnique({ where: { id: me.companyId } });
+  if (!session.companyId) return { error: "No company found." };
+  const companyId = session.companyId;
+  const company = await prisma.company.findUnique({ where: { id: companyId } });
 
   const firstName = String(formData.get("firstName") || "").trim();
   const lastName = String(formData.get("lastName") || "").trim();
@@ -88,7 +88,7 @@ export async function createEmployeeAction(_prev: ActionState, formData: FormDat
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return { error: "Email already exists." };
 
-  const loginId = await nextLoginId(me.companyId, company!.name, firstName, lastName);
+  const loginId = await nextLoginId(companyId, company!.name, firstName, lastName);
   const rawPassword = generatePassword(10);
 
   await prisma.user.create({
@@ -98,7 +98,7 @@ export async function createEmployeeAction(_prev: ActionState, formData: FormDat
       password: await bcrypt.hash(rawPassword, 10),
       role: "EMPLOYEE",
       mustChangePassword: true,
-      companyId: me.companyId,
+      companyId: companyId,
       profile: { create: { firstName, lastName, phone: phone || null, dateOfJoining: new Date() } },
     },
   });
@@ -116,6 +116,13 @@ export async function changePasswordAction(_prev: ActionState, formData: FormDat
   const user = await prisma.user.findUnique({ where: { id: session.id } });
   if (!user || !(await bcrypt.compare(current, user.password))) return { error: "Current password incorrect." };
   await prisma.user.update({ where: { id: session.id }, data: { password: await bcrypt.hash(next, 10), mustChangePassword: false } });
+  await createSession({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    companyId: user.companyId,
+    mustChangePassword: false,
+  });
   redirect("/dashboard");
 }
 

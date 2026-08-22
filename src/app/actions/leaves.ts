@@ -59,6 +59,12 @@ export async function reviewLeaveAction(_prev: ActionState, formData: FormData):
   });
   if (!parsed.success) return { error: "Invalid input." };
 
+  const target = await prisma.leaveRequest.findUnique({
+    where: { id: parsed.data.id },
+    select: { user: { select: { companyId: true } } },
+  });
+  if (!target || target.user.companyId !== session.companyId) return { error: "Forbidden." };
+
   await prisma.leaveRequest.update({
     where: { id: parsed.data.id },
     data: {

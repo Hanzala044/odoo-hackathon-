@@ -65,6 +65,8 @@ export async function markAttendanceAction(_prev: ActionState, formData: FormDat
   const dateStr = String(formData.get("date") || "");
   if (!userId || !dateStr) return { error: "Employee and date are required." };
   if (!["PRESENT", "ABSENT", "HALF_DAY", "LEAVE"].includes(status)) return { error: "Invalid status." };
+  const target = await prisma.user.findUnique({ where: { id: userId }, select: { companyId: true } });
+  if (!target || target.companyId !== session.companyId) return { error: "Forbidden." };
 
   const date = new Date(`${dateStr}T00:00:00.000Z`);
   await prisma.attendance.upsert({
