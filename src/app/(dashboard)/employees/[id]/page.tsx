@@ -10,6 +10,8 @@ export default async function EmployeeViewPage({ params }: { params: Promise<{ i
   const session = await getSession();
   if (!session) redirect("/login");
   const admin = isAdmin(session.role);
+  // employees can only view own data; admins can view everyone in company
+  if (!admin && session.id !== id) redirect("/dashboard");
   const user = await prisma.user.findUnique({ where: { id }, include: { profile: true, company: true } });
   if (!user?.profile || user.companyId !== session.companyId) return <p>Not found</p>;
   const p = user.profile;
@@ -18,9 +20,10 @@ export default async function EmployeeViewPage({ params }: { params: Promise<{ i
   const yearly = wage * 12;
   const pf = s.basic * PF_RATE;
 
+  const backHref = admin ? "/admin/dashboard" : "/dashboard";
   return (
     <div className="mx-auto max-w-5xl">
-      <BackLink href="/dashboard">Employees</BackLink>
+      <BackLink href={backHref}>{admin ? "Admin Dashboard" : "Dashboard"}</BackLink>
       <div className="rounded-[10px] border border-border bg-surface p-6 shadow-rest">
         <div className="flex gap-6 border-b border-border pb-4">
           <Avatar name={`${p.firstName} ${p.lastName}`} size="lg" />

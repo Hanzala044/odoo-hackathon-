@@ -16,7 +16,7 @@ datasource db {
 model Company {
   id        String   @id @default(cuid())
   name      String
-  logo      String?
+  logo      String?  @db.LongText
   createdAt DateTime @default(now())
   users     User[]
   counters  JoinCounter[]
@@ -57,7 +57,7 @@ model Profile {
   lastName      String
   phone         String?
   address       String?
-  profilePic    String?
+  profilePic    String?  @db.LongText
   jobTitle      String?
   department    String?
   manager       String?
@@ -80,21 +80,24 @@ model Profile {
   breakHours    Float     @default(1)
   salaryBase    Float     @default(0)
   salaryBonus   Float     @default(0)
-  documents     String?
+  documents     String?  @db.Text
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
 
 model Attendance {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date      DateTime
-  checkIn   DateTime?
-  checkOut  DateTime?
-  status    String   @default("PRESENT")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime
+  checkIn    DateTime?
+  checkOut   DateTime?
+  status     String    @default("PRESENT")
+  breaks     Json?
+  breakStart DateTime?
+  totalMinutes Int?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@unique([userId, date])
 }
@@ -106,9 +109,9 @@ model LeaveRequest {
   type         String
   startDate    DateTime
   endDate      DateTime
-  remarks      String?
+  remarks      String?  @db.Text
   status       String   @default("PENDING")
-  adminComment String?
+  adminComment String?  @db.Text
   reviewedBy   String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

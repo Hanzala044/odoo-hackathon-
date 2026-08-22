@@ -1,30 +1,44 @@
 "use client";
 
 import { useActionState } from "react";
-import { checkInAction, checkOutAction, markAttendanceAction } from "@/app/actions/attendance";
+import { checkInAction, checkOutAction, startBreakAction, endBreakAction, markAttendanceAction } from "@/app/actions/attendance";
 import { SubmitButton, FormError } from "@/components/submit-button";
 import { inputClass, buttonClass, buttonSecondaryClass } from "@/components/ui";
 
-export function CheckButtons({ checkedIn, checkedOut }: { checkedIn: boolean; checkedOut: boolean }) {
+export function CheckButtons({ checkedIn, checkedOut, isOnBreak }: { checkedIn: boolean; checkedOut: boolean; isOnBreak?: boolean }) {
   const [inState, doCheckIn] = useActionState(async () => await checkInAction(), null);
   const [outState, doCheckOut] = useActionState(async () => await checkOutAction(), null);
+  const [breakStartState, doBreakStart] = useActionState(async () => await startBreakAction(), null);
+  const [breakEndState, doBreakEnd] = useActionState(async () => await endBreakAction(), null);
+  const error = inState?.error ?? outState?.error ?? breakStartState?.error ?? breakEndState?.error;
 
   return (
-    <div className="flex items-center gap-4">
-      {(inState?.error || outState?.error) && (
-        <FormError error={inState?.error ?? outState?.error} />
-      )}
+    <div className="flex flex-wrap items-center gap-3">
+      {error && <FormError error={error} />}
       {!checkedIn && !checkedOut && (
         <form action={doCheckIn}>
           <SubmitButton pendingText="Checking in…" className={buttonClass}>Check in</SubmitButton>
         </form>
       )}
-      {checkedIn && !checkedOut && (
-        <form action={doCheckOut}>
-          <SubmitButton pendingText="Checking out…" className={buttonSecondaryClass}>Check out</SubmitButton>
-        </form>
+      {checkedIn && !checkedOut && !isOnBreak && (
+        <>
+          <form action={doBreakStart}>
+            <SubmitButton pendingText="Starting break…" className={buttonSecondaryClass}>Take break</SubmitButton>
+          </form>
+          <form action={doCheckOut}>
+            <SubmitButton pendingText="Checking out…" className={buttonSecondaryClass}>Check out</SubmitButton>
+          </form>
+        </>
       )}
-      {checkedIn && checkedOut && <p className="text-sm text-muted">Day complete — see you tomorrow.</p>}
+      {checkedIn && !checkedOut && isOnBreak && (
+        <>
+          <form action={doBreakEnd}>
+            <SubmitButton pendingText="Ending break…" className={buttonClass}>End break</SubmitButton>
+          </form>
+          <p className="text-xs text-amber-600">On break — end break to resume or check out</p>
+        </>
+      )}
+      {checkedIn && checkedOut && <p className="text-sm text-muted">Day complete — see you tomorrow. Worked {checkedOut ? "" : ""}</p>}
     </div>
   );
 }

@@ -11,7 +11,7 @@ function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
@@ -19,7 +19,8 @@ export async function middleware(request: NextRequest) {
 
   // Signed-in users skip login/register
   if (session && (pathname === "/login" || pathname === "/register")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const target = isAdmin(session.role) ? "/admin/dashboard" : "/dashboard";
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   // Unauthenticated users hitting protected areas go to /login
@@ -33,6 +34,11 @@ export async function middleware(request: NextRequest) {
     // mustChangePassword: force everyone to /change-password until resolved
     if (session.mustChangePassword && pathname !== "/change-password") {
       return NextResponse.redirect(new URL("/change-password", request.url));
+    }
+
+    // Admins have separate dashboard: /dashboard -> /admin/dashboard
+    if (isAdmin(session.role) && pathname === "/dashboard") {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
 
     // Non-admins cannot reach /admin/**

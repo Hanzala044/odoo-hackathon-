@@ -30,7 +30,12 @@ export default async function ProfilePage() {
       <div className="grid max-w-4xl gap-4">
         <Card>
           <div className="flex items-center gap-5">
-            <Avatar name={`${p.firstName} ${p.lastName}`} size="lg" />
+            {p.profilePic ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={p.profilePic} alt={`${p.firstName} avatar`} className="h-20 w-20 rounded-full object-cover border border-border" />
+            ) : (
+              <Avatar name={`${p.firstName} ${p.lastName}`} size="lg" />
+            )}
             <dl className="grid flex-1 grid-cols-2 gap-x-6 gap-y-2 text-sm">
               <Row label="Name" value={`${p.firstName} ${p.lastName}`} />
               <Row label="Company" value={user.company?.name} />
@@ -45,8 +50,8 @@ export default async function ProfilePage() {
         </Card>
         <ProfileTabs profile={{ ...p, user }} isAdmin={admin} isOwn={true} />
         <Card>
-          <h2 className="mb-4 font-semibold">Contact info (editable)</h2>
-          <OwnProfileForm phone={p.phone} address={p.address} />
+          <h2 className="mb-4 font-semibold">Edit your profile</h2>
+          <OwnProfileForm profile={p} />
         </Card>
       </div>
     </>

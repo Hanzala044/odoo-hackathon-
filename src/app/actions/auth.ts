@@ -32,7 +32,8 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
   if (!user) return { error: "Invalid Login ID/Email or password." };
   await createSession({ id: user.id, email: user.email, role: user.role, companyId: user.companyId, mustChangePassword: user.mustChangePassword });
   if (user.mustChangePassword) redirect("/change-password");
-  redirect("/dashboard");
+  const { isAdmin } = await import("@/lib/roles");
+  redirect(isAdmin(user.role) ? "/admin/dashboard" : "/dashboard");
 }
 
 export async function registerAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -77,7 +78,7 @@ export async function registerAction(_prev: ActionState, formData: FormData): Pr
     },
   });
   await createSession({ id: user.id, email: user.email, role: user.role, companyId: user.companyId, mustChangePassword: user.mustChangePassword });
-  redirect("/dashboard");
+  redirect("/admin/dashboard");
 }
 
 // HR/Admin creates employee -> auto ID + auto password
@@ -132,7 +133,8 @@ export async function changePasswordAction(_prev: ActionState, formData: FormDat
     companyId: user.companyId,
     mustChangePassword: false,
   });
-  redirect("/dashboard");
+  const { isAdmin } = await import("@/lib/roles");
+  redirect(isAdmin(user.role) ? "/admin/dashboard" : "/dashboard");
 }
 
 export async function logoutAction() {
