@@ -74,8 +74,8 @@ export async function requireAdmin() {
   return session;
 }
 
-export async function verifyCredentials(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
+export async function verifyCredentials(identifier: string, password: string) {
+  const user = await prisma.user.findFirst({ where: { OR: [{ email: identifier }, { employeeId: identifier }] } });
   if (!user) return null;
   const bcrypt = await import("bcryptjs");
   if (!(await bcrypt.compare(password, user.password))) return null;

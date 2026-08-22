@@ -13,15 +13,36 @@ datasource db {
 // LeaveType: PAID | SICK | UNPAID
 // LeaveStatus: PENDING | APPROVED | REJECTED
 
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  logo      String?
+  createdAt DateTime @default(now())
+  users     User[]
+  counters  JoinCounter[]
+}
+
+model JoinCounter {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  year      Int
+  count     Int     @default(0)
+  @@unique([companyId, year])
+}
+
 model User {
-  id            String   @id @default(cuid())
-  employeeId    String   @unique
-  email         String   @unique
-  password      String
-  role          String   @default("EMPLOYEE")
-  emailVerified Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(cuid())
+  employeeId       String   @unique
+  email            String   @unique
+  password         String
+  role             String   @default("EMPLOYEE")
+  mustChangePassword Boolean @default(false)
+  companyId        String?
+  company          Company? @relation(fields: [companyId], references: [id])
+  emailVerified    Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   profile       Profile?
   attendances   Attendance[]

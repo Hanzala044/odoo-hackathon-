@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
 import { PageHeader, Table, Td, EmptyState, Badge, fmtDate } from "@/components/ui";
+import { CreateEmployeeForm } from "@/components/create-employee-form";
 
 export default async function AdminEmployeesPage() {
   const session = await getSession();
@@ -16,6 +17,7 @@ export default async function AdminEmployeesPage() {
   return (
     <>
       <PageHeader title="Employees" subtitle={`${users.length} team member${users.length === 1 ? "" : "s"}`} />
+      <div className="mb-6"><CreateEmployeeForm /></div>
       {users.length === 0 ? (
         <EmptyState message="No employees yet." />
       ) : (
