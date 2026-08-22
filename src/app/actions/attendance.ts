@@ -28,6 +28,7 @@ export async function checkInAction(): Promise<ActionState> {
 
   revalidatePath("/attendance");
   revalidatePath("/dashboard");
+  try { (globalThis as unknown as { __io?: { emit: (e: string, d: unknown) => void } }).__io?.emit("attendance:update", { userId: session.id, type: "checkIn" }); } catch {}
   return null;
 }
 
@@ -53,6 +54,7 @@ export async function checkOutAction(): Promise<ActionState> {
 
   revalidatePath("/attendance");
   revalidatePath("/dashboard");
+  try { (globalThis as unknown as { __io?: { emit: (e: string, d: unknown) => void } }).__io?.emit("attendance:update", { userId: session.id, type: "checkOut" }); } catch {}
   return null;
 }
 
