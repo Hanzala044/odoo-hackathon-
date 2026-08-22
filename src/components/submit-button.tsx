@@ -35,3 +35,8 @@ export function FormError({ error }: { error?: string | null }) {
   if (!error) return null;
   return <p className="rounded-md bg-critical-bg px-3 py-2 text-sm text-critical-text">{error}</p>;
 }
+
+export function FormSuccess({ message }: { message?: string | null }) {
+  if (!message) return null;
+  return <p className="rounded-md bg-positive-bg px-3 py-2 text-sm text-positive-text">{message}</p>;
+}

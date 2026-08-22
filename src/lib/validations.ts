@@ -23,12 +23,44 @@ export const createEmployeeSchema = z.object({
   department: z.string().optional(),
 });
 
+export const profileSelfUpdateSchema = z.object({
+  phone: z.string().max(30).optional().nullable(),
+  address: z.string().max(500).optional().nullable(),
+  personalEmail: z.string().email().optional().nullable().or(z.literal("")),
+  dateOfBirth: z.string().optional().nullable().or(z.literal("")),
+  nationality: z.string().max(80).optional().nullable(),
+  gender: z.string().max(20).optional().nullable(),
+  maritalStatus: z.string().max(20).optional().nullable(),
+  location: z.string().max(120).optional().nullable(),
+  bankAccount: z.string().max(50).optional().nullable(),
+  bankName: z.string().max(120).optional().nullable(),
+  ifscCode: z.string().max(30).optional().nullable(),
+  panNo: z.string().max(30).optional().nullable(),
+  uanNo: z.string().max(30).optional().nullable(),
+});
+
 export const profileUpdateSchema = z.object({
   userId: z.string().optional(),
-  phone: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  jobTitle: z.string().optional().nullable(),
-  department: z.string().optional().nullable(),
+  phone: z.string().max(30).optional().nullable(),
+  address: z.string().max(500).optional().nullable(),
+  personalEmail: z.string().email().optional().nullable().or(z.literal("")),
+  dateOfBirth: z.string().optional().nullable().or(z.literal("")),
+  nationality: z.string().max(80).optional().nullable(),
+  gender: z.string().max(20).optional().nullable(),
+  maritalStatus: z.string().max(20).optional().nullable(),
+  location: z.string().max(120).optional().nullable(),
+  bankAccount: z.string().max(50).optional().nullable(),
+  bankName: z.string().max(120).optional().nullable(),
+  ifscCode: z.string().max(30).optional().nullable(),
+  panNo: z.string().max(30).optional().nullable(),
+  uanNo: z.string().max(30).optional().nullable(),
+  jobTitle: z.string().max(120).optional().nullable(),
+  department: z.string().max(120).optional().nullable(),
+  manager: z.string().max(120).optional().nullable(),
+  empCode: z.string().max(50).optional().nullable(),
+  monthlyWage: z.coerce.number().min(0).optional().nullable(),
+  workingDaysPerWeek: z.coerce.number().min(1).max(7).optional().nullable(),
+  breakHours: z.coerce.number().min(0).max(24).optional().nullable(),
 });
 
 export const leaveApplySchema = z
