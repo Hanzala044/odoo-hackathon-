@@ -7,37 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  EMPLOYEE
-  HR
-  ADMIN
-}
-
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
-  HALF_DAY
-  LEAVE
-}
-
-enum LeaveType {
-  PAID
-  SICK
-  UNPAID
-}
-
-enum LeaveStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
+// SQLite does not support Prisma enums; values are validated in app code.
+// Role: EMPLOYEE | HR | ADMIN
+// AttendanceStatus: PRESENT | ABSENT | HALF_DAY | LEAVE
+// LeaveType: PAID | SICK | UNPAID
+// LeaveStatus: PENDING | APPROVED | REJECTED
 
 model User {
   id            String   @id @default(cuid())
   employeeId    String   @unique
   email         String   @unique
   password      String
-  role          Role     @default(EMPLOYEE)
+  role          String   @default("EMPLOYEE")
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -48,9 +29,9 @@ model User {
 }
 
 model Profile {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   firstName     String
   lastName      String
   phone         String?
@@ -59,37 +40,38 @@ model Profile {
   jobTitle      String?
   department    String?
   dateOfJoining DateTime?
-  salaryBase    Float    @default(0)
-  salaryBonus   Float    @default(0)
-  documents     String?  // JSON string of document URLs
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  salaryBase    Float     @default(0)
+  salaryBonus   Float     @default(0)
+  documents     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Attendance {
-  id        String           @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date      DateTime         // date only
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime
   checkIn   DateTime?
   checkOut  DateTime?
-  status    AttendanceStatus @default(PRESENT)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  status    String   @default("PRESENT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, date])
 }
 
 model LeaveRequest {
-  id         String      @id @default(cuid())
-  userId     String
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type       LeaveType
-  startDate  DateTime
-  endDate    DateTime
-  remarks    String?
-  status     LeaveStatus @default(PENDING)
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         String
+  startDate    DateTime
+  endDate      DateTime
+  remarks      String?
+  status       String   @default("PENDING")
   adminComment String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  reviewedBy   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
