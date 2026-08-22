@@ -54,7 +54,16 @@ export async function registerAction(_prev: ActionState, formData: FormData): Pr
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return { error: "Email already registered." };
 
-  const company = await prisma.company.create({ data: { name: companyName } });
+  // handle optional logo upload with size guard (avoids re-hitting body limit with huge files)
+  const logoFile = formData.get("logo");
+  let logo: string | null = null;
+  if (logoFile instanceof File && logoFile.size > 0) {
+    if (logoFile.size > 4 * 1024 * 1024) return { error: "Logo must be under 4MB." };
+    const buf = Buffer.from(await logoFile.arrayBuffer());
+    logo = `data:${logoFile.type};base64,${buf.toString("base64")}`;
+  }
+
+  const company = await prisma.company.create({ data: { name: companyName, logo } });
   const loginId = await nextLoginId(company.id, companyName, firstName, lastName);
 
   const user = await prisma.user.create({

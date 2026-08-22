@@ -45,6 +45,7 @@ export async function applyLeaveAction(_prev: ActionState, formData: FormData): 
   revalidatePath("/leaves");
   revalidatePath("/admin/leaves");
   revalidatePath("/dashboard");
+  try { (globalThis as unknown as { __io?: { emit: (e: string, d: unknown) => void } }).__io?.emit("leaves:update", { userId: session.id }); } catch {}
   return { success: "Leave request submitted." };
 }
 
@@ -77,5 +78,6 @@ export async function reviewLeaveAction(_prev: ActionState, formData: FormData):
   revalidatePath("/admin/leaves");
   revalidatePath("/leaves");
   revalidatePath("/dashboard");
+  try { (globalThis as unknown as { __io?: { emit: (e: string, d: unknown) => void } }).__io?.emit("leaves:update", { id: parsed.data.id, status: parsed.data.status }); } catch {}
   return { success: `Request ${parsed.data.status === "APPROVED" ? "approved" : "rejected"}.` };
 }
