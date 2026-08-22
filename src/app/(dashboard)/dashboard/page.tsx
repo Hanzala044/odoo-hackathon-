@@ -13,7 +13,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     include: { profile: true, attendances: { where: { date: new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) } }, leaveRequests: { where: { status: "APPROVED", startDate: { lte: new Date() }, endDate: { gte: new Date() } } } },
     orderBy: { createdAt: "asc" },
   });
-  const filtered = q ? users.filter((u) => `${u.profile?.firstName} ${u.profile?.lastName} ${u.email}`.toLowerCase().includes(q.toLowerCase())) : users;
+  const filtered = q ? users.filter((u: any) => `${u.profile?.firstName} ${u.profile?.lastName} ${u.email}`.toLowerCase().includes(q.toLowerCase())) : users;
 
   return (
     <>
@@ -22,7 +22,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <form className="flex-1"><input name="q" defaultValue={q} placeholder="Search" className="mx-auto block w-full max-w-sm rounded-full border bg-white px-4 py-1.5 text-sm" /></form>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((u) => {
+        {filtered.map((u: any) => {
           const att = u.attendances[0];
           const onLeave = u.leaveRequests.length > 0;
           let statusIcon = "🟡";

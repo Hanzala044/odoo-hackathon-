@@ -27,7 +27,7 @@ export default async function LeavesPage() {
         <EmptyState message="You haven't applied for any leave yet." />
       ) : (
         <Table head={["Type", "From", "To", "Remarks", "Status", "HR comment"]}>
-          {requests.map((r) => (
+          {requests.map((r: any) => (
             <tr key={r.id}>
               <Td><Badge value={r.type} /></Td>
               <Td>{fmtDate(r.startDate)}</Td>

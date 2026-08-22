@@ -29,7 +29,7 @@ export default async function AdminAttendancePage() {
       <div className="mb-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 font-semibold">Mark attendance manually</h2>
         <MarkAttendanceForm
-          employees={users.map((u) => ({
+          employees={users.map((u: any) => ({
             id: u.id,
             label: u.profile ? `${u.profile.firstName} ${u.profile.lastName} (${u.employeeId})` : u.email,
           }))}
@@ -40,7 +40,7 @@ export default async function AdminAttendancePage() {
         <EmptyState message="No attendance records yet." />
       ) : (
         <Table head={["Date", "Employee", "Check-in", "Check-out", "Status"]}>
-          {records.map((r) => (
+          {records.map((r: any) => (
             <tr key={r.id}>
               <Td>{fmtDate(r.date)}</Td>
               <Td>{r.user.profile ? `${r.user.profile.firstName} ${r.user.profile.lastName}` : r.user.email}</Td>

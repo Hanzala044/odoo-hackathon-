@@ -23,7 +23,7 @@ export default async function AdminEmployeesPage() {
         <EmptyState message="No employees yet." />
       ) : (
         <Table head={["Employee ID", "Name", "Email", "Department", "Role", "Joined", ""]}>
-          {users.map((u) => (
+          {users.map((u: any) => (
             <tr key={u.id}>
               <Td>{u.employeeId}</Td>
               <Td>{u.profile ? `${u.profile.firstName} ${u.profile.lastName}` : "—"}</Td>

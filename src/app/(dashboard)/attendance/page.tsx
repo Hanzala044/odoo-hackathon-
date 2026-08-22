@@ -41,7 +41,7 @@ export default async function AttendancePage() {
         <EmptyState message="No attendance records yet. Check in to create your first one." />
       ) : (
         <Table head={["Date", "Check-in", "Check-out", "Status"]}>
-          {records.map((r) => (
+          {records.map((r: any) => (
             <tr key={r.id}>
               <Td>{fmtDate(r.date)}</Td>
               <Td>{fmtTime(r.checkIn)}</Td>
