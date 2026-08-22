@@ -12,11 +12,11 @@ export function OwnProfileForm({ phone, address }: { phone?: string | null; addr
       <FormError error={state?.error} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="phone" className="mb-1 block text-sm font-medium">Phone</label>
+          <label htmlFor="phone" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Phone</label>
           <input id="phone" name="phone" defaultValue={phone ?? ""} className={inputClass} />
         </div>
         <div>
-          <label htmlFor="address" className="mb-1 block text-sm font-medium">Address</label>
+          <label htmlFor="address" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Address</label>
           <input id="address" name="address" defaultValue={address ?? ""} className={inputClass} />
         </div>
       </div>

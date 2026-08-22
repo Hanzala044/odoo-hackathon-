@@ -2,14 +2,14 @@
 import { useActionState, useState } from "react";
 import { createEmployeeAction } from "@/app/actions/auth";
 import { SubmitButton } from "@/components/submit-button";
-import { inputClass } from "@/components/ui";
+import { inputClass, buttonSecondaryClass, buttonClass } from "@/components/ui";
 
 function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="flex items-center gap-2">
-      <span className="w-20 shrink-0 text-sm text-slate-500">{label}</span>
-      <code className="min-w-0 flex-1 truncate rounded bg-slate-100 px-2 py-1 font-mono text-sm">{value}</code>
+      <span className="w-20 shrink-0 text-xs font-medium uppercase tracking-wide text-muted">{label}</span>
+      <code className="min-w-0 flex-1 truncate rounded-md bg-bg px-2 py-1 font-mono text-sm">{value}</code>
       <button
         type="button"
         onClick={async () => {
@@ -26,9 +26,9 @@ function CopyField({ label, value }: { label: string; value: string }) {
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
         }}
-        className="shrink-0 rounded border border-slate-300 px-2 py-1 text-xs font-medium hover:bg-slate-50"
+        className={buttonSecondaryClass}
       >
-        {copied ? "Copied!" : "Copy"}
+        {copied ? "Copied ✓" : "Copy"}
       </button>
     </div>
   );
@@ -36,27 +36,46 @@ function CopyField({ label, value }: { label: string; value: string }) {
 
 export function CreateEmployeeForm() {
   const [state, action] = useActionState(createEmployeeAction, null);
+  const hasCredentials = !!state?.generatedId && !!state?.generatedPassword;
   return (
-    <form action={action} className="space-y-4 rounded-xl border bg-white p-6">
-      <h3 className="font-semibold">Create Employee (auto Login ID + password)</h3>
-      {state?.error && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{state.error}</p>}
-      {state?.generatedId && state.generatedPassword && (
-        <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4">
-          <p className="text-sm font-medium text-amber-800">Share these credentials with the employee now.</p>
-          <p className="text-xs text-amber-700">
-            This is the only time the temporary password is shown — it cannot be retrieved later.
+    <form action={action} className="space-y-4 rounded-[10px] border border-border bg-surface p-5 shadow-rest">
+      <h2 className="text-[15px] font-semibold">Add an employee</h2>
+      <p className="text-sm text-muted">A login ID and temporary password are generated automatically.</p>
+      {state?.error && <p className="rounded-md bg-critical-bg px-3 py-2 text-sm text-critical-text">{state.error}</p>}
+      {hasCredentials && (
+        <div className="space-y-3 rounded-lg border border-accent/30 bg-accent-soft p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold text-accent">
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[1.75]">
+              <rect x="4" y="10" width="16" height="10" rx="2" />
+              <path d="M8 10V7a4 4 0 1 1 8 0v3" />
+            </svg>
+            Credentials generated
           </p>
-          <CopyField label="Login ID" value={state.generatedId} />
-          <CopyField label="Password" value={state.generatedPassword} />
+          <p className="text-xs text-muted">
+            This is the only time the password is shown — copy it now, it cannot be retrieved later.
+          </p>
+          <CopyField label="Login ID" value={state.generatedId!} />
+          <CopyField label="Password" value={state.generatedPassword!} />
         </div>
       )}
       <div className="grid gap-4 sm:grid-cols-2">
-        <div><label className="mb-1 block text-sm font-medium">First name</label><input name="firstName" required className={inputClass} /></div>
-        <div><label className="mb-1 block text-sm font-medium">Last name</label><input name="lastName" required className={inputClass} /></div>
-        <div><label className="mb-1 block text-sm font-medium">Email</label><input name="email" type="email" required className={inputClass} /></div>
-        <div><label className="mb-1 block text-sm font-medium">Phone</label><input name="phone" className={inputClass} /></div>
+        <Field label="First name"><input name="firstName" required className={inputClass} /></Field>
+        <Field label="Last name"><input name="lastName" required className={inputClass} /></Field>
+        <Field label="Email"><input name="email" type="email" required className={inputClass} /></Field>
+        <Field label="Phone"><input name="phone" className={inputClass} /></Field>
       </div>
-      <SubmitButton pendingText="Creating…">Create</SubmitButton>
+      <SubmitButton pendingText="Creating…" className={hasCredentials ? buttonSecondaryClass : buttonClass}>
+        Create employee
+      </SubmitButton>
     </form>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">{label}</label>
+      {children}
+    </div>
   );
 }
