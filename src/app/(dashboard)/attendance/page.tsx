@@ -23,25 +23,32 @@ export default async function AttendancePage() {
 
   const checkedIn = !!todayRecord?.checkIn;
   const checkedOut = !!todayRecord?.checkOut;
+  const isOnBreak = !!(todayRecord?.breakStart && checkedIn && !checkedOut);
 
   return (
     <>
-      <PageHeader title="Attendance" subtitle="Your check-ins for the past week." />
+      <PageHeader title="Attendance" subtitle="Your check-ins for the past week — time tracking is live." />
       <Card className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted">Today · {fmtDate(todayUtc)}</p>
           <p className="mt-1.5 font-medium">
-            {checkedIn && !checkedOut && (
+            {checkedIn && !checkedOut && !isOnBreak && (
               <>
                 Checked in at {fmtTime(todayRecord?.checkIn)}
                 <span className="ml-2 text-xs font-normal text-muted">{fmtRelative(todayRecord?.checkIn)}</span>
+                {todayRecord?.totalMinutes == null && todayRecord?.breaks && Array.isArray(todayRecord.breaks) && (todayRecord.breaks as any[]).length > 0 && (
+                  <span className="ml-2 text-xs text-muted">Breaks: {(todayRecord.breaks as any[]).length}</span>
+                )}
               </>
             )}
-            {checkedIn && checkedOut && <>Day complete — checked out at {fmtTime(todayRecord?.checkOut)}</>}
-            {!checkedIn && "You haven't checked in yet"}
+            {checkedIn && !checkedOut && isOnBreak && (
+              <>On break since {fmtTime(todayRecord?.breakStart)} <span className="ml-2 text-xs font-normal text-amber-600">timer paused</span></>
+            )}
+            {checkedIn && checkedOut && <>Day complete — checked out at {fmtTime(todayRecord?.checkOut)} · Worked {todayRecord?.totalMinutes != null ? `${Math.floor((todayRecord.totalMinutes as number)/60)}h ${(todayRecord.totalMinutes as number)%60}m` : "—"}</>}
+            {!checkedIn && "You haven't checked in yet — timer not started"}
           </p>
         </div>
-        <CheckButtons checkedIn={checkedIn} checkedOut={checkedOut} />
+        <CheckButtons checkedIn={checkedIn} checkedOut={checkedOut} isOnBreak={isOnBreak} />
       </Card>
 
       <h2 className="mb-3 text-[15px] font-semibold">Last 7 days</h2>
@@ -61,12 +68,14 @@ export default async function AttendancePage() {
           }
         />
       ) : (
-        <Table head={["Date", "Check-in", "Check-out", "Status"]}>
-          {records.map((r) => (
+        <Table head={["Date", "Check-in", "Check-out", "Worked", "Breaks", "Status"]}>
+          {records.map((r: any) => (
             <Tr key={r.id}>
               <Td>{fmtDate(r.date)}</Td>
               <Td>{fmtTime(r.checkIn)}</Td>
               <Td>{fmtTime(r.checkOut)}</Td>
+              <Td>{r.totalMinutes != null ? `${Math.floor(r.totalMinutes/60)}h ${r.totalMinutes%60}m` : r.checkIn && r.checkOut ? `${Math.floor((new Date(r.checkOut).getTime()-new Date(r.checkIn).getTime())/60000/60)}h` : "—"}</Td>
+              <Td>{Array.isArray(r.breaks) ? (r.breaks as any[]).length : 0}</Td>
               <Td><Badge value={r.status} /></Td>
             </Tr>
           ))}

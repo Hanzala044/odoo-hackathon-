@@ -13,9 +13,36 @@ export default async function LeavesPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  // leave balance — quotas per year (from spec)
+  const QUOTAS: Record<string, number> = { PAID: 12, SICK: 6, UNPAID: Infinity };
+  const used: Record<string, number> = { PAID: 0, SICK: 0, UNPAID: 0 };
+  const yearStart = new Date(Date.UTC(new Date().getFullYear(), 0, 1));
+  for (const r of requests) {
+    if (r.status !== "APPROVED") continue;
+    if (r.startDate < yearStart) continue;
+    const days = Math.ceil((r.endDate.getTime() - r.startDate.getTime()) / 86400000) + 1;
+    if (r.type in used) used[r.type] += days;
+  }
+
   return (
     <>
       <PageHeader title="Time Off" subtitle="Request time off and follow each decision." />
+
+      <div className="mb-6 grid grid-cols-3 gap-3">
+        {Object.entries(QUOTAS).map(([type, quota]) => {
+          const u = used[type] || 0;
+          const rem = quota === Infinity ? "∞" : Math.max(0, quota - u);
+          const pct = quota === Infinity ? 0 : Math.min(100, (u / quota) * 100);
+          return (
+            <div key={type} className="rounded-xl border border-border bg-surface p-4 shadow-rest">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted">{type}</p>
+              <p className="mt-1 text-2xl font-semibold">{rem}<span className="text-sm font-normal text-muted"> remaining</span></p>
+              <p className="text-xs text-muted">{u} used of {quota === Infinity ? "∞" : quota} days</p>
+              {quota !== Infinity && <div className="mt-2 h-1.5 rounded-full bg-bg"><div className="h-1.5 rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} /></div>}
+            </div>
+          );
+        })}
+      </div>
 
       <Card className="mb-8">
         <h2 className="mb-4 text-[15px] font-semibold">New request</h2>

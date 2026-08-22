@@ -39,13 +39,15 @@ export default async function AdminAttendancePage() {
       {records.length === 0 ? (
         <EmptyState message="No attendance records yet." />
       ) : (
-        <Table head={["Date", "Employee", "Check-in", "Check-out", "Status"]}>
-          {records.map((r) => (
+        <Table head={["Date", "Employee", "Check-in", "Check-out", "Worked", "Breaks", "Status"]}>
+          {records.map((r: any) => (
             <Tr key={r.id}>
               <Td>{fmtDate(r.date)}</Td>
               <Td>{r.user.profile ? `${r.user.profile.firstName} ${r.user.profile.lastName}` : r.user.email}</Td>
-              <Td>{fmtTime(r.checkIn)}</Td>
+              <Td>{fmtTime(r.checkIn)} {r.breakStart ? <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[10px] text-amber-700">on break</span> : null}</Td>
               <Td>{fmtTime(r.checkOut)}</Td>
+              <Td>{r.totalMinutes != null ? `${Math.floor(r.totalMinutes/60)}h ${r.totalMinutes%60}m` : r.checkIn && r.checkOut ? `${Math.floor((new Date(r.checkOut).getTime()-new Date(r.checkIn).getTime())/60000)}m` : "—"}</Td>
+              <Td>{Array.isArray(r.breaks) ? (r.breaks as any[]).length : 0}</Td>
               <Td><Badge value={r.status} /></Td>
             </Tr>
           ))}
