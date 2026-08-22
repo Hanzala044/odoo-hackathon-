@@ -30,6 +30,8 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
   if (!parsed.success) return { error: "Enter Login ID/Email and password." };
   const user = await verifyCredentials(parsed.data.identifier, parsed.data.password);
   if (!user) return { error: "Invalid Login ID/Email or password." };
+  // Clear any stale session (e.g. old admin cookie) before writing the new one
+  await destroySession();
   await createSession({ id: user.id, email: user.email, role: user.role, companyId: user.companyId, mustChangePassword: user.mustChangePassword });
   if (user.mustChangePassword) redirect("/change-password");
   const { isAdmin } = await import("@/lib/roles");

@@ -17,8 +17,8 @@ export async function proxy(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const session = token ? await deserializeSessionToken(token) : null;
 
-  // Signed-in users skip login/register
-  if (session && (pathname === "/login" || pathname === "/register")) {
+  // Signed-in users skip register (but NOT /login — let them re-authenticate to get a fresh session)
+  if (session && pathname === "/register") {
     const target = isAdmin(session.role) ? "/admin/dashboard" : "/dashboard";
     return NextResponse.redirect(new URL(target, request.url));
   }
