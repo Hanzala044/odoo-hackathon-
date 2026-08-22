@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { HeaderClient } from "@/components/header-client";
+import { RealtimeRefresher } from "@/components/realtime-refresher";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -23,6 +24,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         checkedInAt={att?.checkIn ? new Date(att.checkIn).toISOString() : undefined}
         isAdmin={isAdmin(session.role)}
       />
+      <RealtimeRefresher />
       <main className="mx-auto w-full max-w-6xl p-6">{children}</main>
     </div>
   );
