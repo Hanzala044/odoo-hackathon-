@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 body {
-  @apply bg-slate-100 text-slate-900 antialiased;
+  background-color: var(--color-slate-100);
+  color: var(--color-slate-900);
+  -webkit-font-smoothing: antialiased;
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }

@@ -9,7 +9,7 @@ export default function AuthShell({
   title: string;
   subtitle: string;
   children: React.ReactNode;
-  footer: React.ReactNode;
+  footer?: React.ReactNode;
 }) {
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
@@ -22,7 +22,7 @@ export default function AuthShell({
           <h1 className="text-xl font-semibold">{title}</h1>
           <p className="mb-5 mt-1 text-sm text-slate-500">{subtitle}</p>
           {children}
-          <p className="mt-5 text-center text-sm text-slate-500">{footer}</p>
+          {footer ? <p className="mt-5 text-center text-sm text-slate-500">{footer}</p> : null}
         </div>
       </div>
     </main>

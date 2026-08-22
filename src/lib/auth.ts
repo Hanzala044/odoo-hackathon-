@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
 const COOKIE_NAME = "dayflow_session";
-const SECRET = process.env.NEXTAUTH_SECRET || "dev-secret";
+// Custom HMAC-signed cookie session secret (legacy env name was NEXTAUTH_SECRET — this project does not use NextAuth).
+const SECRET = process.env.SESSION_SECRET || process.env.NEXTAUTH_SECRET || "dev-secret";
 const MAX_AGE = 60 * 60 * 24 * 7;
 
 export type SessionUser = {
