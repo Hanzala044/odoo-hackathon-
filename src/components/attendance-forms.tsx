@@ -24,7 +24,7 @@ export function CheckButtons({ checkedIn, checkedOut }: { checkedIn: boolean; ch
           <SubmitButton pendingText="Checking out…" className={buttonSecondaryClass}>Check out</SubmitButton>
         </form>
       )}
-      {checkedIn && checkedOut && <p className="text-sm text-slate-500">Day complete — see you tomorrow.</p>}
+      {checkedIn && checkedOut && <p className="text-sm text-muted">Day complete — see you tomorrow.</p>}
     </div>
   );
 }
@@ -39,7 +39,7 @@ export function MarkAttendanceForm({
     <form action={action} className="flex flex-wrap items-end gap-3">
       <FormError error={state?.error} />
       <div>
-        <label htmlFor="userId" className="mb-1 block text-sm font-medium">Employee</label>
+        <label htmlFor="userId" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Employee</label>
         <select id="userId" name="userId" required className={inputClass}>
           {employees.map((e) => (
             <option key={e.id} value={e.id}>{e.label}</option>
@@ -47,11 +47,11 @@ export function MarkAttendanceForm({
         </select>
       </div>
       <div>
-        <label htmlFor="date" className="mb-1 block text-sm font-medium">Date</label>
+        <label htmlFor="date" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Date</label>
         <input id="date" name="date" type="date" required className={inputClass} />
       </div>
       <div>
-        <label htmlFor="status" className="mb-1 block text-sm font-medium">Status</label>
+        <label htmlFor="status" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Status</label>
         <select id="status" name="status" className={inputClass}>
           <option value="PRESENT">Present</option>
           <option value="ABSENT">Absent</option>

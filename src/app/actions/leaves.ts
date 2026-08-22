@@ -45,7 +45,7 @@ export async function applyLeaveAction(_prev: ActionState, formData: FormData): 
   revalidatePath("/leaves");
   revalidatePath("/admin/leaves");
   revalidatePath("/dashboard");
-  return null;
+  return { success: "Leave request submitted." };
 }
 
 export async function reviewLeaveAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -77,5 +77,5 @@ export async function reviewLeaveAction(_prev: ActionState, formData: FormData):
   revalidatePath("/admin/leaves");
   revalidatePath("/leaves");
   revalidatePath("/dashboard");
-  return null;
+  return { success: `Request ${parsed.data.status === "APPROVED" ? "approved" : "rejected"}.` };
 }

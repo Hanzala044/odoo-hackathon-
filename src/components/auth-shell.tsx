@@ -16,13 +16,13 @@ export default function AuthShell({
       <div className="w-full max-w-md">
         <Link href="/" className="mb-8 flex flex-col items-center gap-1">
           <span className="text-3xl font-bold tracking-tight">Dayflow</span>
-          <span className="text-sm italic text-slate-500">Every workday, perfectly aligned.</span>
+          <span className="text-sm italic text-muted">Every workday, perfectly aligned.</span>
         </Link>
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-[10px] border border-border bg-surface p-6 shadow-rest">
           <h1 className="text-xl font-semibold">{title}</h1>
-          <p className="mb-5 mt-1 text-sm text-slate-500">{subtitle}</p>
+          <p className="mb-5 mt-1 text-sm text-muted">{subtitle}</p>
           {children}
-          {footer ? <p className="mt-5 text-center text-sm text-slate-500">{footer}</p> : null}
+          {footer ? <p className="mt-5 text-center text-sm text-muted">{footer}</p> : null}
         </div>
       </div>
     </main>
