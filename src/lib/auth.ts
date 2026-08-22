@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { isAdmin } from "@/lib/roles";
 import {
   SESSION_COOKIE_NAME,
   serializeSession,
@@ -8,7 +9,7 @@ import {
 } from "@/lib/session";
 
 export type { SessionUser };
-export { SESSION_COOKIE_NAME };
+export { SESSION_COOKIE_NAME, isAdmin };
 
 const MAX_AGE = 60 * 60 * 24 * 7;
 
@@ -33,10 +34,6 @@ export async function getSession(): Promise<SessionUser | null> {
   const token = store.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
   return deserializeSessionToken(token);
-}
-
-export function isAdmin(role?: string | null) {
-  return role === "ADMIN" || role === "HR";
 }
 
 export async function requireUser() {
