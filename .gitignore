@@ -44,3 +44,12 @@ next-env.d.ts
 # local sqlite database
 prisma/dev.db
 prisma/dev.db-journal
+
+
+#Skills
+.agents
+.claude
+.cursor
+.gemini
+.kiro
+.qoder
