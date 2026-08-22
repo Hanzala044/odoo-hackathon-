@@ -1,83 +1,56 @@
-import crypto from "crypto";
-import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "./prisma";
+import bcrypt from "bcryptjs";
 
-const COOKIE_NAME = "dayflow_session";
-const SECRET = process.env.NEXTAUTH_SECRET || "dev-secret";
-const MAX_AGE = 60 * 60 * 24 * 7;
-
-export type SessionUser = {
-  id: string;
-  email: string;
-  role: string;
+export const authOptions: NextAuthOptions = {
+  session: { strategy: "jwt" },
+  secret: process.env.NEXTAUTH_SECRET,
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+          include: { profile: true },
+        });
+        if (!user) return null;
+        const valid = await bcrypt.compare(credentials.password, user.password);
+        if (!valid) return null;
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : user.email,
+          role: user.role,
+          employeeId: user.employeeId,
+        } as any;
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        (token as any).role = (user as any).role;
+        (token as any).id = user.id;
+        (token as any).employeeId = (user as any).employeeId;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        (session.user as any).id = (token as any).id;
+        (session.user as any).role = (token as any).role;
+        (session.user as any).employeeId = (token as any).employeeId;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
 };
-
-function sign(value: string) {
-  return crypto.createHmac("sha256", SECRET).update(value).digest("base64url");
-}
-
-function serialize(user: SessionUser) {
-  const payload = Buffer.from(JSON.stringify({ ...user, exp: Date.now() + MAX_AGE * 1000 })).toString("base64url");
-  return `${payload}.${sign(payload)}`;
-}
-
-function deserialize(token: string): SessionUser | null {
-  const [payload, sig] = token.split(".");
-  if (!payload || !sig) return null;
-  const expected = sign(payload);
-  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
-  try {
-    const data = JSON.parse(Buffer.from(payload, "base64url").toString());
-    if (!data.exp || data.exp < Date.now()) return null;
-    return { id: data.id, email: data.email, role: data.role };
-  } catch {
-    return null;
-  }
-}
-
-export async function createSession(user: SessionUser) {
-  const store = await cookies();
-  store.set(COOKIE_NAME, serialize(user), {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: MAX_AGE,
-    secure: process.env.NODE_ENV === "production",
-  });
-}
-
-export async function destroySession() {
-  const store = await cookies();
-  store.delete(COOKIE_NAME);
-}
-
-export async function getSession(): Promise<SessionUser | null> {
-  const store = await cookies();
-  const token = store.get(COOKIE_NAME)?.value;
-  if (!token) return null;
-  return deserialize(token);
-}
-
-export function isAdmin(role?: string | null) {
-  return role === "ADMIN" || role === "HR";
-}
-
-export async function requireUser() {
-  const session = await getSession();
-  if (!session) throw new Error("UNAUTHORIZED");
-  return session;
-}
-
-export async function requireAdmin() {
-  const session = await requireUser();
-  if (!isAdmin(session.role)) throw new Error("FORBIDDEN");
-  return session;
-}
-
-export async function verifyCredentials(identifier: string, password: string) {
-  const user = await prisma.user.findFirst({ where: { OR: [{ email: identifier }, { employeeId: identifier }] } });
-  if (!user) return null;
-  const bcrypt = await import("bcryptjs");
-  if (!(await bcrypt.compare(password, user.password))) return null;
-  return user;
-}
