@@ -19,7 +19,7 @@ async function nextLoginId(companyId: string, companyName: string, firstName: st
   // upsert with increment returns previous; if created count=1 else incremented — need fresh value
   const fresh = await prisma.joinCounter.findUnique({ where: { companyId_year: { companyId, year } } });
   const serial = fresh!.count;
-  return buildLoginId(companyName, firstName, lastName, year, serial);
+  return buildLoginId(companyName, firstName, lastName, year, serial, companyId);
 }
 
 export async function loginAction(_prev: ActionState, formData: FormData): Promise<ActionState> {

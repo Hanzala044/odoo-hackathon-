@@ -9,9 +9,12 @@ function namePart(name: string): string {
   return (clean.slice(0, 2) || "XX").toUpperCase().padEnd(2, "X");
 }
 
-export function buildLoginId(companyName: string, firstName: string, lastName: string, year: number, serial: number): string {
-  return `${companyInitials(companyName)}${namePart(firstName)}${namePart(lastName)}${year}${String(serial).padStart(4, "0")}`;
+export function buildLoginId(companyName: string, firstName: string, lastName: string, year: number, serial: number, companyId?: string): string {
+  // Append 4-char company cuid suffix to guarantee global uniqueness across companies
+  const companySuffix = companyId ? companyId.replace(/[^a-zA-Z0-9]/g, "").slice(-4).toUpperCase() : "";
+  return `${companyInitials(companyName)}${namePart(firstName)}${namePart(lastName)}${year}${String(serial).padStart(4, "0")}${companySuffix}`;
 }
+
 
 export function generatePassword(length = 10): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789@#$%";
