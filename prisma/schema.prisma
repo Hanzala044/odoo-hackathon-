@@ -60,7 +60,24 @@ model Profile {
   profilePic    String?
   jobTitle      String?
   department    String?
+  manager       String?
+  location      String?
   dateOfJoining DateTime?
+  dateOfBirth   DateTime?
+  nationality   String?
+  gender        String?
+  maritalStatus String?
+  personalEmail String?
+  bankAccount   String?
+  bankName      String?
+  ifscCode      String?
+  panNo         String?
+  uanNo         String?
+  empCode       String?
+  // SalaryInfo - auto-calculated from monthlyWage
+  monthlyWage   Float     @default(50000)
+  workingDaysPerWeek Int  @default(5)
+  breakHours    Float     @default(1)
   salaryBase    Float     @default(0)
   salaryBonus   Float     @default(0)
   documents     String?
