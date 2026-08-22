@@ -9,7 +9,7 @@ function Inner() {
     <button
       type="submit"
       disabled={pending}
-      className="cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+      className="cursor-pointer rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-ink hover:bg-bg disabled:opacity-50 transition-colors cursor-pointer"
     >
       {pending ? "Signing out…" : "Sign out"}
     </button>

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Avatar, BackLink } from "@/components/ui";
 import { calcSalary, PF_RATE, PROF_TAX } from "@/lib/salary";
 
 export default async function EmployeeViewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,25 +20,25 @@ export default async function EmployeeViewPage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto max-w-5xl">
-      <Link href="/dashboard" className="mb-4 inline-block text-sm text-indigo-600">← Back to Employees</Link>
-      <div className="rounded-lg border bg-white p-6">
-        <div className="flex gap-6 border-b pb-4">
-          <div className="h-20 w-20 rounded-full bg-rose-300 flex items-center justify-center text-2xl">✎</div>
+      <BackLink href="/dashboard">Employees</BackLink>
+      <div className="rounded-[10px] border border-border bg-surface p-6 shadow-rest">
+        <div className="flex gap-6 border-b border-border pb-4">
+          <Avatar name={`${p.firstName} ${p.lastName}`} size="lg" />
           <div className="grid flex-1 grid-cols-2 gap-2 text-sm">
-            <div><span className="text-slate-500">My Name</span><p className="font-semibold">{p.firstName} {p.lastName}</p></div>
-            <div><span className="text-slate-500">Company</span><p>{user.company?.name || "—"}</p></div>
-            <div><span className="text-slate-500">Login ID</span><p>{user.employeeId}</p></div>
-            <div><span className="text-slate-500">Department</span><p>{p.department || "—"}</p></div>
-            <div><span className="text-slate-500">Email</span><p>{user.email}</p></div>
-            <div><span className="text-slate-500">Manager</span><p>{p.manager || "—"}</p></div>
-            <div><span className="text-slate-500">Mobile</span><p>{p.phone || "—"}</p></div>
-            <div><span className="text-slate-500">Location</span><p>{p.location || "—"}</p></div>
+            <div><span className="text-muted">Name</span><p className="font-semibold">{p.firstName} {p.lastName}</p></div>
+            <div><span className="text-muted">Company</span><p>{user.company?.name || "—"}</p></div>
+            <div><span className="text-muted">Login ID</span><p>{user.employeeId}</p></div>
+            <div><span className="text-muted">Department</span><p>{p.department || "—"}</p></div>
+            <div><span className="text-muted">Email</span><p>{user.email}</p></div>
+            <div><span className="text-muted">Manager</span><p>{p.manager || "—"}</p></div>
+            <div><span className="text-muted">Mobile</span><p>{p.phone || "—"}</p></div>
+            <div><span className="text-muted">Location</span><p>{p.location || "—"}</p></div>
           </div>
         </div>
         <div className="mt-4 flex gap-2 text-xs">
-          <span className="rounded border px-3 py-1">Resume</span>
-          <Link href={`/profile`} className="rounded border px-3 py-1">Private Info</Link>
-          {admin && <span className="rounded bg-slate-900 px-3 py-1 text-white">Salary Info</span>}
+          <span className="rounded-md border border-border px-3 py-1 text-muted">Resume</span>
+          <Link href={`/profile`} className="rounded-md border border-border px-3 py-1 text-muted hover:bg-bg transition-colors">Private Info</Link>
+          {admin && <span className="rounded bg-accent px-3 py-1 text-white">Salary Info</span>}
         </div>
         {admin ? (
           <div className="mt-6 grid gap-6 md:grid-cols-2 text-sm">
@@ -62,7 +63,7 @@ export default async function EmployeeViewPage({ params }: { params: Promise<{ i
             </div>
           </div>
         ) : (
-          <p className="mt-6 text-sm text-slate-500">View-only mode. Salary Info visible to Admin only.</p>
+          <p className="mt-6 text-sm text-muted">View-only mode. Salary Info visible to Admin only.</p>
         )}
       </div>
     </div>

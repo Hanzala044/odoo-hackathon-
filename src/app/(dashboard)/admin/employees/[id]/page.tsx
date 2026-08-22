@@ -28,7 +28,7 @@ export default async function AdminEmployeeDetailPage({ params }: { params: Prom
         <Card>
           <h2 className="mb-4 font-semibold">Employment details</h2>
           {!p ? (
-            <p className="text-sm text-slate-500">No profile exists for this employee yet.</p>
+            <p className="text-sm text-muted">No profile exists for this employee yet.</p>
           ) : (
             <dl className="mb-6 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <Row label="Email" value={user.email} />
@@ -58,7 +58,7 @@ export default async function AdminEmployeeDetailPage({ params }: { params: Prom
 function Row({ label, value }: { label: string; value?: string | null }) {
   return (
     <>
-      <dt className="text-slate-500">{label}</dt>
+      <dt className="text-muted">{label}</dt>
       <dd className="font-medium">{value || "—"}</dd>
     </>
   );

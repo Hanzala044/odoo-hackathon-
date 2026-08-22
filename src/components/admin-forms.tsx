@@ -25,19 +25,19 @@ export function AdminProfileForm({
       <FormError error={state?.error} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="jobTitle" className="mb-1 block text-sm font-medium">Job title</label>
+          <label htmlFor="jobTitle" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Job title</label>
           <input id="jobTitle" name="jobTitle" defaultValue={jobTitle ?? ""} className={inputClass} />
         </div>
         <div>
-          <label htmlFor="department" className="mb-1 block text-sm font-medium">Department</label>
+          <label htmlFor="department" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Department</label>
           <input id="department" name="department" defaultValue={department ?? ""} className={inputClass} />
         </div>
         <div>
-          <label htmlFor="phone" className="mb-1 block text-sm font-medium">Phone</label>
+          <label htmlFor="phone" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Phone</label>
           <input id="phone" name="phone" defaultValue={phone ?? ""} className={inputClass} />
         </div>
         <div>
-          <label htmlFor="address" className="mb-1 block text-sm font-medium">Address</label>
+          <label htmlFor="address" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Address</label>
           <input id="address" name="address" defaultValue={address ?? ""} className={inputClass} />
         </div>
       </div>
@@ -54,11 +54,11 @@ export function PayrollForm({ userId, salaryBase, salaryBonus }: { userId: strin
       <FormError error={state?.error} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="salaryBase" className="mb-1 block text-sm font-medium">Base salary ($)</label>
+          <label htmlFor="salaryBase" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Base salary ($)</label>
           <input id="salaryBase" name="salaryBase" type="number" step="0.01" min="0" defaultValue={salaryBase} className={inputClass} />
         </div>
         <div>
-          <label htmlFor="salaryBonus" className="mb-1 block text-sm font-medium">Bonus ($)</label>
+          <label htmlFor="salaryBonus" className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">Bonus ($)</label>
           <input id="salaryBonus" name="salaryBonus" type="number" step="0.01" min="0" defaultValue={salaryBonus} className={inputClass} />
         </div>
       </div>

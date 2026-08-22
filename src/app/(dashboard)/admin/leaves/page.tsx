@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
-import { PageHeader, Table, Td, Badge, EmptyState, fmtDate } from "@/components/ui";
+import { PageHeader, Table, Tr, Td, Badge, EmptyState, fmtDate } from "@/components/ui";
 import { LeaveReviewForm } from "@/components/leave-review";
 
 export default async function AdminLeavesPage() {
@@ -22,14 +22,22 @@ export default async function AdminLeavesPage() {
 
   return (
     <>
-      <PageHeader title="Leave Approvals" subtitle="Review and respond to employee leave requests." />
+      <PageHeader title="Leave Approvals" subtitle="Respond to pending time-off requests." />
       {pendingFirst.length === 0 ? (
-        <EmptyState message="No leave requests yet." />
+        <EmptyState
+          icon={
+            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.5]">
+              <path d="M9 12l2 2 4-4" />
+              <circle cx="12" cy="12" r="9" />
+            </svg>
+          }
+          message="All caught up — no leave requests to review."
+        />
       ) : (
         <Table head={["Employee", "Type", "From", "To", "Remarks", "Status", "HR comment", "Action"]}>
           {pendingFirst.map((r) => (
-            <tr key={r.id}>
-              <Td>
+            <Tr key={r.id}>
+              <Td className="font-medium">
                 {r.user.profile
                   ? `${r.user.profile.firstName} ${r.user.profile.lastName}`
                   : r.user.email}
@@ -44,10 +52,10 @@ export default async function AdminLeavesPage() {
                 {r.status === "PENDING" ? (
                   <LeaveReviewForm id={r.id} />
                 ) : (
-                  <span className="text-xs text-slate-400">Reviewed</span>
+                  <span className="text-xs text-muted">Reviewed</span>
                 )}
               </Td>
-            </tr>
+            </Tr>
           ))}
         </Table>
       )}
