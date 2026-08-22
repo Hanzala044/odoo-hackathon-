@@ -4,157 +4,132 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await bcrypt.hash("password123", 10);
+  const adminPass = await bcrypt.hash("Admin@123", 10);
+  const empPass = await bcrypt.hash("Employee@123", 10);
 
-  const usersData = [
-    {
-      employeeId: "EMP001",
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@dayflow.test" },
+    update: {},
+    create: {
+      employeeId: "EMP-001",
       email: "admin@dayflow.test",
-      role: "ADMIN" as const,
-      firstName: "Ava",
-      lastName: "Patel",
-      jobTitle: "HR Manager",
-      department: "Human Resources",
-      status: "PRESENT" as const,
+      password: adminPass,
+      role: "ADMIN",
+      profile: {
+        create: {
+          firstName: "Ava",
+          lastName: "Reed",
+          jobTitle: "HR Officer",
+          department: "People Ops",
+          phone: "+1 555 0100",
+          address: "1 HQ Plaza",
+          dateOfJoining: new Date("2023-01-10"),
+          salaryBase: 95000,
+          salaryBonus: 5000,
+        },
+      },
     },
-    {
-      employeeId: "EMP002",
-      email: "john.doe@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "John",
-      lastName: "Doe",
-      jobTitle: "Software Engineer",
-      department: "Engineering",
-      status: "PRESENT" as const,
-    },
-    {
-      employeeId: "EMP003",
-      email: "jane.smith@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "Jane",
-      lastName: "Smith",
-      jobTitle: "Product Designer",
-      department: "Design",
-      status: "LEAVE" as const,
-    },
-    {
-      employeeId: "EMP004",
-      email: "mike.ross@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "Mike",
-      lastName: "Ross",
-      jobTitle: "Marketing Lead",
-      department: "Marketing",
-      status: "ABSENT" as const,
-    },
-    {
-      employeeId: "EMP005",
-      email: "sara.connor@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "Sara",
-      lastName: "Connor",
-      jobTitle: "QA Engineer",
-      department: "Engineering",
-      status: "PRESENT" as const,
-    },
-    {
-      employeeId: "EMP006",
-      email: "david.kim@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "David",
-      lastName: "Kim",
-      jobTitle: "DevOps Engineer",
-      department: "Engineering",
-      status: "ABSENT" as const,
-    },
-    {
-      employeeId: "EMP007",
-      email: "lisa.wang@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "Lisa",
-      lastName: "Wang",
-      jobTitle: "HR Specialist",
-      department: "Human Resources",
-      status: "LEAVE" as const,
-    },
-    {
-      employeeId: "EMP008",
-      email: "chris.lee@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "Chris",
-      lastName: "Lee",
-      jobTitle: "Sales Manager",
-      department: "Sales",
-      status: "PRESENT" as const,
-    },
-    {
-      employeeId: "EMP009",
-      email: "emma.brown@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "Emma",
-      lastName: "Brown",
-      jobTitle: "Content Writer",
-      department: "Marketing",
-      status: "ABSENT" as const,
-    },
-    {
-      employeeId: "EMP010",
-      email: "alex.turner@dayflow.test",
-      role: "EMPLOYEE" as const,
-      firstName: "Alex",
-      lastName: "Turner",
-      jobTitle: "Data Analyst",
-      department: "Analytics",
-      status: "PRESENT" as const,
-    },
-  ];
+  });
 
-  for (const u of usersData) {
-    const user = await prisma.user.upsert({
-      where: { email: u.email },
+  const employee = await prisma.user.upsert({
+    where: { email: "employee@dayflow.test" },
+    update: {},
+    create: {
+      employeeId: "EMP-002",
+      email: "employee@dayflow.test",
+      password: empPass,
+      role: "EMPLOYEE",
+      profile: {
+        create: {
+          firstName: "Sam",
+          lastName: "Carter",
+          jobTitle: "Software Engineer",
+          department: "Engineering",
+          phone: "+1 555 0111",
+          address: "42 Elm Street",
+          dateOfJoining: new Date("2024-03-01"),
+          salaryBase: 72000,
+          salaryBonus: 2000,
+        },
+      },
+    },
+  });
+
+  const others = [
+    ["EMP-003", "mia.chen@dayflow.test", "Mia", "Chen", "Designer", "Design"],
+    ["EMP-004", "liam.patel@dayflow.test", "Liam", "Patel", "QA Engineer", "Engineering"],
+    ["EMP-005", "noor.hassan@dayflow.test", "Noor", "Hassan", "Accountant", "Finance"],
+  ] as const;
+
+  for (const [employeeId, email, firstName, lastName, jobTitle, department] of others) {
+    await prisma.user.upsert({
+      where: { email },
       update: {},
       create: {
-        employeeId: u.employeeId,
-        email: u.email,
-        password: passwordHash,
-        role: u.role,
+        employeeId,
+        email,
+        password: empPass,
+        role: "EMPLOYEE",
         profile: {
           create: {
-            firstName: u.firstName,
-            lastName: u.lastName,
-            jobTitle: u.jobTitle,
-            department: u.department,
-            phone: "+1 555-010" + Math.floor(Math.random() * 9),
-            address: "123 Main St, City",
-            dateOfJoining: new Date("2023-01-15"),
+            firstName,
+            lastName,
+            jobTitle,
+            department,
+            dateOfJoining: new Date("2024-06-15"),
+            salaryBase: 65000,
+            salaryBonus: 1000,
           },
         },
       },
     });
+  }
 
-    // attendance for today
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    await prisma.attendance.upsert({
-      where: { userId_date: { userId: user.id, date: today } },
-      update: { status: u.status },
-      create: {
-        userId: user.id,
-        date: today,
-        status: u.status,
-        checkIn: u.status === "PRESENT" ? new Date() : null,
+  // sample attendance for the last 7 days (skip weekends)
+  const today = new Date();
+  for (let i = 1; i <= 6; i++) {
+    const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - i));
+    if (d.getUTCDay() === 0 || d.getUTCDay() === 6) continue;
+    for (const u of [employee]) {
+      await prisma.attendance.upsert({
+        where: { userId_date: { userId: u.id, date: d } },
+        update: {},
+        create: {
+          userId: u.id,
+          date: d,
+          checkIn: new Date(d.getTime() + 9 * 3600000),
+          checkOut: new Date(d.getTime() + 17.5 * 3600000),
+          status: "PRESENT",
+        },
+      });
+    }
+  }
+
+  // sample leave request
+  const existingLeave = await prisma.leaveRequest.findFirst({
+    where: { userId: employee.id, status: "PENDING" },
+  });
+  if (!existingLeave) {
+    const start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 7));
+    const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 9));
+    await prisma.leaveRequest.create({
+      data: {
+        userId: employee.id,
+        type: "PAID",
+        startDate: start,
+        endDate: end,
+        remarks: "Family trip.",
       },
     });
   }
 
-  console.log("Seed done");
+  console.log(`Seeded. Admin: ${admin.email} / Admin@123 — Employee: ${employee.email} / Employee@123`);
 }
 
 main()
-  .catch((e) => {
+  .then(() => prisma.$disconnect())
+  .catch(async (e) => {
     console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
     await prisma.$disconnect();
+    process.exit(1);
   });
